@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+body {
+  background: black;
+  max-width: 800px;
+  margin: 50px auto;
+}
+* {
+  color: white;
+  font-size: 12pt;
+  line-height: 1.5;
+  font-family: 'Fira Code', monospace;
+}
+h2 {
+  margin-top: 0;
+}
+.module,
+.module > * {
+  margin-bottom: 30px;
+}
+#voices {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+#voices.deactivated {
+  opacity: 0.3;
+}
+#voices .voice {
+  flex: 1;
+  width: 100%;
+  text-align: center;
+  border-radius: 5px;
+  margin: 5px;
+}
+#voices .voice.active {
+  background: blue;
+}
+#voices .voice .note {
+  opacity: 0.3;
+}
+#voices .spacer {
+  flex: 1;
+}
+#drop {
+  border: dashed 5px rgba(255, 255, 255, 0.3);
+  text-align: center;
+  margin-bottom: 30px;
+}
+#drop.active {
+  border-color: blue;
+}
+#audio-files .audio-file {
+  margin: 10px 0;
+  padding: 10px 30px;
+  opacity: 0.3;
+  border-radius: 5px;
+}
+#audio-files .audio-file.active {
+  background: blue;
+  opacity: 1;
+}
+.value {
+  opacity: 0.3;
+}

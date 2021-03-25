@@ -3,15 +3,24 @@
   <head>
     <meta charset="utf-8">
     <title></title>
-    <style>
-      body {
-        background: black;
-      }
-    </style>
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <button id="init">init</button><br>
-    <canvas id="patcher" style="width: 600px; height: 400px;"></canvas>
+    <div class="module">
+      <h2>drone</h2>
+      <div id="drone-values" class="values"></div>
+      <div id="voices" class="deactivated"></div>      
+    </div>
+    <div class="module">
+      <h2>audio player</h2>
+      <div id="audio-player-values" class="values"></div>
+      <div id="drop">
+        <p>drop audio files</p>
+      </div>
+      <div id="audio-files"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
+    <script src="http://reverbjs.org/reverb.js"></script>
     <script src="/index.js"></script>
   </body>
 </html>
