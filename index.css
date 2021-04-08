@@ -14,52 +14,103 @@ body {
 h2 {
   margin-top: 0;
 }
-.module,
-.module > * {
+
+
+
+div {
+  margin: 0 10px 10px 0;
+  padding: 5px 10px;
+}
+.center {
+  text-align: center;
+}
+.no-padding {
+  padding: 0;
+}
+.module {
+  opacity: 0.3;
   margin-bottom: 30px;
 }
-#voices {
+.module.active {
+  opacity: 1;
+}
+
+
+
+.param {
+  display: inline-block;
+  opacity: 0.3;
+  border-radius: 5px;
+  background: #222;
+}
+.param.active {
+  opacity: 1;
+}
+
+
+
+.drone .voices {
   display: flex;
   justify-content: space-between;
   align-items: stretch;
 }
-#voices.deactivated {
-  opacity: 0.3;
-}
-#voices .voice {
+.drone .voices .voice {
   flex: 1;
   width: 100%;
   text-align: center;
   border-radius: 5px;
-  margin: 5px;
+  background: #222;
 }
-#voices .voice.active {
+.drone .voices .voice > div {
+  margin: 0;
+}
+.drone .voices .voice.active {
   background: blue;
 }
-#voices .voice .note {
+.drone .voices .voice .note {
   opacity: 0.3;
 }
-#voices .spacer {
+.drone .voices .spacer {
   flex: 1;
 }
-#drop {
-  border: dashed 5px rgba(255, 255, 255, 0.3);
-  text-align: center;
-  margin-bottom: 30px;
-}
-#drop.active {
-  border-color: blue;
-}
-#audio-files .audio-file {
-  margin: 10px 0;
-  padding: 10px 30px;
-  opacity: 0.3;
+
+
+
+.audio-player .files {
+  background: red;
+  overflow: scroll;
+  background: #222;
   border-radius: 5px;
 }
-#audio-files .audio-file.active {
+.audio-player .files .file {
+  opacity: 0.3;
+  border-radius: 5px;
+  background: #222;
+}
+.audio-player .files .file.active {
   background: blue;
   opacity: 1;
 }
-.value {
-  opacity: 0.3;
+
+
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: black;
+  margin: 20px;
+  /* padding: 50px 0; */
+}
+.modal.active {
+  display: block;
+}
+.drop {
+  border: dashed 5px rgba(255, 255, 255, 0.3);
+}
+.drop.active {
+  border-color: blue;
 }

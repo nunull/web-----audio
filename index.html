@@ -6,21 +6,56 @@
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <div class="module">
-      <h2>drone</h2>
-      <div id="drone-values" class="values"></div>
-      <div id="voices" class="deactivated"></div>      
-    </div>
-    <div class="module">
-      <h2>audio player</h2>
-      <div id="audio-player-values" class="values"></div>
-      <div id="drop">
-        <p>drop audio files</p>
+    <div id="app">
+      <div class="module drone no-padding" v-bind:class="{ active: audio.initialized }">
+        <h2>drone</h2>
+        <div class="params no-padding">
+          <div v-for="param of drone.params" class="param" v-bind:class="{ active: param.active }">{{ param.name }}: {{ param.value }}</div>
+        </div>
+        <div class="voices no-padding deactivated">
+          <div v-for="voice of drone.voices" v-if="voice.key" class="voice" v-bind:class="{ active: voice.active }">
+            <div>{{ voice.key.toUpperCase() }}</div>
+            <div class="note">{{ voice.note }}</div>
+          </div>
+          <div v-else class="spacer"></div>
+        </div>      
       </div>
-      <div id="audio-files"></div>
+      
+      <div class="module audio-player no-padding" v-bind:class="{ active: audio.initialized }">
+        <h2>audio player</h2>
+        <div class="params no-padding">
+          <div v-for="param of audioPlayer.params" class="param" v-bind:class="{ active: param.active }">{{ param.name }}: {{ param.value }}</div>
+        </div>
+        <div class="files no-padding">
+          <div v-for="file of audioPlayer.files" class="file" v-bind:class="{ active: file.active }" v-on:click="playFile(file)">
+            {{ file.name }}
+          </div>
+          <div v-if="audioPlayer.files.length === 0">
+            drop some audio files onto this window
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal start" v-bind:class="{ active: modal.name === 'start' }">
+        <p>press any key or drop some audio files here to start</p>
+        <ul>
+          <li>press "ASDFJKL;" to play the drone</li>
+          <li>drop some audio files and click them to play them in a loop</li>
+          <li>press tab to cycle through selected params and "&uarr; &darr; &rarr; &larr;" to change their values</li>
+        </ul>
+      </div>
+      <div class="modal initializing" v-bind:class="{ active: modal.name === 'initializing' }">
+        <p>initializing...</p>
+      </div>
+      <div class="modal drop" v-bind:class="{ active: modal.name === 'drop' }">
+        <p class="center">drop audio files</p>
+      </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
     <script src="http://reverbjs.org/reverb.js"></script>
-    <script src="/index.js"></script>
+    <script src="audio.js"></script>
+    <script src="index.js"></script>
   </body>
 </html>
