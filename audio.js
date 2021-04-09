@@ -32,8 +32,7 @@ const audio = {
     this.context = new (window.AudioContext || window.webkitAudioContext)()
     reverbjs.extend(this.context);
     
-    const reverbUrl = "http://reverbjs.org/Library/LadyChapelStAlbansCathedral.m4a";
-    this.reverbNode = this.context.createReverbFromUrl(reverbUrl, () => {
+    this.reverbNode = this.context.createReverbFromUrl('LadyChapelStAlbansCathedral.m4a', () => {
       this.reverbNode.connect(this.context.destination)
       
       app.onInitialized()
