@@ -3,15 +3,17 @@ const app = new Vue({
   data: {
     drone: {
       params: [{
-        module: 'drone',
         name: 'volume',
-        value: 0.8,
+        value: 1,
         active: true
-      // }, {
-      //   module: 'drone',
-      //   name: 'reverb',
-      //   value: 0.8,
-      //   active: false
+      }, {
+        name: 'attack',
+        value: 1,
+        active: false
+      }, {
+        name: 'release',
+        value: 1,
+        active: false
       // }, {
       //   module: 'drone',
       //   name: 'tone',
@@ -56,7 +58,6 @@ const app = new Vue({
     },
     audioPlayer: {
       params: [{
-        module: 'audioPlayer',
         name: 'volume',
         value: 0.8,
         active: false
@@ -138,6 +139,17 @@ const app = new Vue({
       nextParam.active = true
     },
     
+    selectPreviousParam () {
+      const params = this.drone.params.concat(this.audioPlayer.params)
+      const currentParam = params.find(param => param.active)
+      const currentIndex = params.indexOf(currentParam)
+      const previousIndex = currentIndex === 0 ? params.length - 1 : currentIndex - 1
+      const previousParam = params[previousIndex]
+      
+      currentParam.active = false
+      previousParam.active = true
+    },
+    
     increaseCurrentParam () {
       const params = this.drone.params.concat(this.audioPlayer.params)
       const currentParam = params.find(param => param.active)
@@ -171,10 +183,13 @@ const app = new Vue({
 app.showModal('start')
 
 document.addEventListener('keydown', event => {
+  console.log('keydown', event)
+  
   switch (event.key) {
     case 'Tab':
       event.preventDefault()
-      app.selectNextParam()
+      if (!event.shiftKey) app.selectNextParam()
+      else app.selectPreviousParam()
       return
     case 'ArrowUp':
     case 'ArrowRight':

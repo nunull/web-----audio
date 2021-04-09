@@ -1,4 +1,7 @@
 const audio = {
+  DEFAULT_ATTACK: 5,
+  DEFAULT_RELEASE: 5,
+  
   context: null,
   reverbNode: null,
   droneGainLeft: null,
@@ -6,26 +9,11 @@ const audio = {
   audioPlayerGain: null,
   voices: [],
   
-  setAttack (value) {
-    this.voices.forEach(voice => {
-      voice.attackValue = value
-    })
-  },
-
-  setRelease (value) {
-    this.voices.forEach(voice => {
-      voice.releaseValue = value
-    })
-  },
-  
   init (voices) {
     if (this.context) {
       this.context.resume()
       return
     }
-    
-    console.log('use `audio.setAttack(value)`')
-    console.log('use `audio.setRelease(value)`')
     
     console.log('init')
     
@@ -120,15 +108,21 @@ const audio = {
   
   onParamChange (param) {
     const droneVolume = app.drone.params.find(param => param.name === 'volume')
-    // const reverb = app.drone.params.find(param => param.name === 'reverb')
+    const droneAttack = app.drone.params.find(param => param.name === 'attack')
+    const droneRelease = app.drone.params.find(param => param.name === 'release')
     // const tone = app.drone.params.find(param => param.name === 'volume')
     
-    droneGainLeft.gain.linearRampToValueAtTime(droneVolume.value, this.context.currentTime + 0.2)
-    droneGainRight.gain.linearRampToValueAtTime(droneVolume.value, this.context.currentTime + 0.2)
+    droneGainLeft.gain.linearRampToValueAtTime(Math.pow(droneVolume.value, 2), this.context.currentTime + 0.2)
+    droneGainRight.gain.linearRampToValueAtTime(Math.pow(droneVolume.value, 2), this.context.currentTime + 0.2)
+    
+    this.voices.forEach(voice => {
+      voice.attackValue = Math.pow(droneAttack.value, 2) * this.DEFAULT_ATTACK
+      voice.releaseValue = Math.pow(droneRelease.value, 2) * this.DEFAULT_RELEASE
+    })
     
     const audioPlayerVolume = app.audioPlayer.params.find(param => param.name === 'volume')
     
-    audioPlayerGain.gain.linearRampToValueAtTime(audioPlayerVolume.value, this.context.currentTime + 0.2)
+    audioPlayerGain.gain.linearRampToValueAtTime(Math.pow(audioPlayerVolume.value, 2), this.context.currentTime + 0.2)
   },
   
   // createGain (value) {
@@ -172,21 +166,22 @@ const audio = {
     const context = this.context
     
     return {
-      attackValue: 5,
-      releaseValue: 3,
+      attackValue: audio.DEFAULT_ATTACK,
+      releaseValue: audio.DEFAULT_RELEASE,
       key,
       note,
       gain,
       oscillator,
       attack () {
-        // gain.gain.cancelAndHoldAtTime(context.currentTime)
-        gain.gain.cancelScheduledValues(context.currentTime)
+        console.log('attack', this)
+        gain.gain.cancelAndHoldAtTime(context.currentTime)
+        // gain.gain.cancelScheduledValues(context.currentTime)
         gain.gain.linearRampToValueAtTime(0, context.currentTime + 0.01)
         gain.gain.linearRampToValueAtTime(0.125, context.currentTime + this.attackValue)
       },
       release () {
-        // gain.gain.cancelAndHoldAtTime(context.currentTime)
-        gain.gain.cancelScheduledValues(context.currentTime)
+        gain.gain.cancelAndHoldAtTime(context.currentTime)
+        // gain.gain.cancelScheduledValues(context.currentTime)
         gain.gain.linearRampToValueAtTime(0, context.currentTime + this.releaseValue)
       }
     }
