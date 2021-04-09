@@ -172,7 +172,7 @@ const audio = {
     const context = this.context
     
     return {
-      attackValue: 3,
+      attackValue: 5,
       releaseValue: 3,
       key,
       note,
