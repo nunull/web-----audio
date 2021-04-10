@@ -26,6 +26,19 @@ const audio = {
       app.onInitialized()
     })
     
+    const delay = this.context.createDelay()
+    delay.delayTime.setValueAtTime(0.3, this.context.currentTime)
+    delay.connect(this.context.destination)
+    
+    const delayInput = this.context.createGain()
+    delayInput.gain.setValueAtTime(0.5, this.context.currentTime)
+    delayInput.connect(delay)
+    
+    const delayFeedback = this.context.createGain()
+    delayFeedback.gain.setValueAtTime(0.7, this.context.currentTime)
+    delay.connect(delayFeedback)
+    delayFeedback.connect(delay)
+    
     const left = this.context.createStereoPanner()
     const right = this.context.createStereoPanner()
     left.pan.setValueAtTime(-0.5, this.context.currentTime)
@@ -33,6 +46,9 @@ const audio = {
     
     left.connect(this.reverbNode)
     right.connect(this.reverbNode)
+    
+    left.connect(delayInput)
+    right.connect(delayInput)
     
     const lfos = [
       this.createLfo(0.12),
