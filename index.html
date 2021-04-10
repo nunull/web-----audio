@@ -10,21 +10,27 @@
       <div class="module drone no-padding" v-bind:class="{ active: audio.initialized }">
         <h2>drone</h2>
         <div class="params no-padding">
-          <div v-for="param of drone.params" class="param" v-bind:class="{ active: param.active }">{{ param.name }}: {{ param.value }}</div>
+          <div v-for="(value, key) of drone.params" class="param" v-bind:class="{ active: isParamActive('drone', key) }">{{ key }}: {{ value }}</div>
         </div>
         <div class="voices no-padding deactivated">
-          <div v-for="voice of drone.voices" v-if="voice.key" class="voice" v-bind:class="{ active: voice.active }">
+          <!-- <div v-for="key of drone.keys">
+            {{ key }}
+          </div> -->
+          <div v-for="voice of voices" v-if="voice.type === 'voice'" class="voice" v-bind:class="{ active: isKeyActive(voice.key) }">
             <div>{{ voice.key.toUpperCase() }}</div>
             <div class="note">{{ voice.note }}</div>
           </div>
-          <div v-else class="spacer"></div>
+          <div v-else-if="voice.type === 'space'" class="space"></div>
+          <div v-else-if="voice.type === 'break'" class="break">
+            <br><br>
+          </div>
         </div>      
       </div>
       
       <div class="module audio-player no-padding" v-bind:class="{ active: audio.initialized }">
         <h2>audio player</h2>
         <div class="params no-padding">
-          <div v-for="param of audioPlayer.params" class="param" v-bind:class="{ active: param.active }">{{ param.name }}: {{ param.value }}</div>
+          <div v-for="(value, key) of audioPlayer.params" class="param" v-bind:class="{ active: isParamActive('audioPlayer', key) }">{{ key }}: {{ value }}</div>
         </div>
         <div class="files no-padding">
           <div v-for="file of audioPlayer.files" class="file" v-bind:class="{ active: file.active }" v-on:click="playFile(file)">
@@ -52,9 +58,9 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
-    <script src="reverb.js"></script>
+    <script src="assets/vue.js"></script>
+    <script src="assets/tonal.min.js"></script>
+    <script src="assets/reverb.js"></script>
     <script src="audio.js"></script>
     <script src="index.js"></script>
   </body>

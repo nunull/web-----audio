@@ -9,7 +9,7 @@ const audio = {
   audioPlayerGain: null,
   voices: [],
   
-  init (voices) {
+  init () {
     if (this.context) {
       this.context.resume()
       return
@@ -20,7 +20,7 @@ const audio = {
     this.context = new (window.AudioContext || window.webkitAudioContext)()
     reverbjs.extend(this.context);
     
-    this.reverbNode = this.context.createReverbFromUrl('LadyChapelStAlbansCathedral.m4a', () => {
+    this.reverbNode = this.context.createReverbFromUrl('assets/LadyChapelStAlbansCathedral.m4a', () => {
       this.reverbNode.connect(this.context.destination)
       
       app.onInitialized()
@@ -66,8 +66,8 @@ const audio = {
     audioPlayerGain.gain.setValueAtTime(0.8, this.context.currentTime)
     audioPlayerGain.connect(this.reverbNode)
 
-    for (let i = 0; i < app.drone.voices.length; i++) {
-      const voice_ = app.drone.voices[i]
+    for (let i = 0; i < app.voices.length; i++) {
+      const voice_ = app.voices[i]
       if (!voice_.key) continue
       
       const voice = this.createVoice(voice_.key, voice_.note)
@@ -106,30 +106,17 @@ const audio = {
     return sourceNode
   },
   
-  onParamChange (param) {
-    const droneVolume = app.drone.params.find(param => param.name === 'volume')
-    const droneAttack = app.drone.params.find(param => param.name === 'attack')
-    const droneRelease = app.drone.params.find(param => param.name === 'release')
-    // const tone = app.drone.params.find(param => param.name === 'volume')
-    
-    droneGainLeft.gain.linearRampToValueAtTime(Math.pow(droneVolume.value, 2), this.context.currentTime + 0.2)
-    droneGainRight.gain.linearRampToValueAtTime(Math.pow(droneVolume.value, 2), this.context.currentTime + 0.2)
+  onParamChange () {    
+    droneGainLeft.gain.linearRampToValueAtTime(Math.pow(app.drone.params.volume, 2), this.context.currentTime + 0.2)
+    droneGainRight.gain.linearRampToValueAtTime(Math.pow(app.drone.params.volume, 2), this.context.currentTime + 0.2)
     
     this.voices.forEach(voice => {
-      voice.attackValue = Math.pow(droneAttack.value, 2) * this.DEFAULT_ATTACK
-      voice.releaseValue = Math.pow(droneRelease.value, 2) * this.DEFAULT_RELEASE
+      voice.attackValue = Math.pow(app.drone.params.attack, 2) * this.DEFAULT_ATTACK
+      voice.releaseValue = Math.pow(app.drone.params.release, 2) * this.DEFAULT_RELEASE
     })
     
-    const audioPlayerVolume = app.audioPlayer.params.find(param => param.name === 'volume')
-    
-    audioPlayerGain.gain.linearRampToValueAtTime(Math.pow(audioPlayerVolume.value, 2), this.context.currentTime + 0.2)
+    audioPlayerGain.gain.linearRampToValueAtTime(Math.pow(app.audioPlayer.params.volume, 2), this.context.currentTime + 0.2)
   },
-  
-  // createGain (value) {
-  //   const gain = this.context.createGain()
-  //   gain.setValueAtTime(value, this.context.currentTime)
-  //   return gain
-  // },
   
   createLfo (frequency) {
     const context = this.context

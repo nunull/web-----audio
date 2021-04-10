@@ -1,72 +1,30 @@
 const app = new Vue({
   el: '#app',
   data: {
+    activeParam: null,
     drone: {
-      params: [{
-        name: 'volume',
-        value: 1,
-        active: true
-      }, {
-        name: 'attack',
-        value: 1,
-        active: false
-      }, {
-        name: 'release',
-        value: 1,
-        active: false
-      // }, {
-      //   module: 'drone',
-      //   name: 'tone',
-      //   value: 0.2,
-      //   active: false
-      }],
-      voices: [{
-        key: 'a',
-        note: 'c3',
-        active: false
-      }, {
-        key: 's',
-        note: 'c4',
-        active: false
-      }, {
-        key: 'd',
-        note: 'd#4',
-        active: false
-      }, {
-        key: 'f',
-        note: 'g4',
-        active: false
-      }, {
+      params: {
+        volume: 1,
+        attack: 1,
+        release: 1
+      },
+      keys: 'qweruiopasdfjkl;zxcvnm,.'.split(''),
+      notes: [
+        'c2', 'c3', 'd#3', 'g3',
+        'g#3', 'f2', 'g#2', 'c4',
         
-      }, {
-        key: 'j',
-        note: 'g#4',
-        active: false
-      }, {
-        key: 'k',
-        note: 'f3',
-        active: false
-      }, {
-        key: 'l',
-        note: 'g#3',
-        active: false
-      }, {
-        key: ';',
-        note: 'c5',
-        active: false
-      }]
+        'c3', 'c4', 'd#4', 'g4',
+        'g#4', 'f3', 'g#3', 'c5',
+        
+        'c4', 'c5', 'd#5', 'g5',
+        'g#5', 'f4', 'g#4', 'c6'
+      ],
+      activeKeys: []
     },
     audioPlayer: {
-      params: [{
-        name: 'volume',
-        value: 0.8,
-        active: false
-      // }, {
-      //   module: 'audioPlayer',
-      //   name: 'reverb',
-      //   value: 0.8,
-      //   active: false
-      }],
+      params: {
+        volume: 0.8
+      },
       files: []
     },
     audio: {
@@ -76,10 +34,43 @@ const app = new Vue({
       name: null
     }
   },
+  
+  computed: {
+    params () {
+      const paramsList = []
+      for (const key in this.drone.params) {
+        paramsList.push({ module: 'drone', key, value: this.drone.params[key] })
+      }
+      
+      for (const key in this.audioPlayer.params) {
+        paramsList.push({ module: 'audioPlayer', key, value: this.audioPlayer.params[key] })
+      }
+      
+      return paramsList
+    },
+    
+    voices () {
+      const voices = []
+      for (let i = 0; i < this.drone.keys.length; i++) {
+        const key = this.drone.keys[i]
+        const note = this.drone.notes[i]
+        
+        voices.push({ type: 'voice', key, note })
+        
+        if (i % 8 == 7) voices.push({ type: 'break' })
+        else if (i % 4 == 3) voices.push({ type: 'space' })
+      }
+      
+      return voices
+    }
+  },
+  
   methods: {
     init () {
-      if (!app.audio.initialized) this.showModal('initializing')
+      if (app.audio.initialized) return
       
+      this.showModal('initializing')
+      this.activeParam = this.params[0]
       audio.init()
     },
     
@@ -88,27 +79,33 @@ const app = new Vue({
       this.hideModal()
     },
     
+    isKeyActive (key) {
+      return this.drone.activeKeys.indexOf(key) !== -1
+    },
+    
+    isParamActive (module, key) {
+      if (!this.activeParam) return false
+      return this.activeParam.module === module && this.activeParam.key === key
+    },
+    
     playVoice (key) {
       if (!app.audio.initialized) return  
       
-      const voice_ = this.drone.voices.find(v => v.key === key)
-      if (!voice_) return
-      
       const voice = audio.voices.find(v => v.key === key)
+      if (!voice) return
       
-      voice_.active = true
+      this.drone.activeKeys.push(key)
       voice.attack()
     },
     
     stopVoice (key) {
       if (!app.audio.initialized) return
       
-      const voice_ = this.drone.voices.find(v => v.key === key)
-      if (!voice_) return
-      
       const voice = audio.voices.find(v => v.key === key)
+      if (!voice) return
       
-      voice_.active = false
+      const activeKeyIndex = this.drone.activeKeys.indexOf(key)
+      this.drone.activeKeys.splice(activeKeyIndex, 1)
       voice.release()
     },
     
@@ -129,45 +126,41 @@ const app = new Vue({
     },
     
     selectNextParam () {
-      const params = this.drone.params.concat(this.audioPlayer.params)
-      const currentParam = params.find(param => param.active)
-      const currentIndex = params.indexOf(currentParam)
-      const nextIndex = (currentIndex + 1) % params.length
-      const nextParam = params[nextIndex]
+      const currentParam = this.params.find(p =>
+        p.module === this.activeParam.module && p.key === this.activeParam.key)
+      const currentIndex = this.params.indexOf(currentParam)
+      const nextIndex = (currentIndex + 1) % this.params.length
       
-      currentParam.active = false
-      nextParam.active = true
+      this.activeParam = this.params[nextIndex]
     },
     
     selectPreviousParam () {
-      const params = this.drone.params.concat(this.audioPlayer.params)
-      const currentParam = params.find(param => param.active)
-      const currentIndex = params.indexOf(currentParam)
-      const previousIndex = currentIndex === 0 ? params.length - 1 : currentIndex - 1
-      const previousParam = params[previousIndex]
+      const currentParam = this.params.find(p =>
+        p.module === this.activeParam.module && p.key === this.activeParam.key)
+      const currentIndex = this.params.indexOf(currentParam)
+      const previousIndex = currentIndex === 0 ? this.params.length - 1 : currentIndex - 1
       
-      currentParam.active = false
-      previousParam.active = true
+      this.activeParam = this.params[previousIndex]
     },
     
     increaseCurrentParam () {
-      const params = this.drone.params.concat(this.audioPlayer.params)
-      const currentParam = params.find(param => param.active)
+      const params = this[this.activeParam.module].params
+      const key = this.activeParam.key
       
-      currentParam.value = Math.min(1, currentParam.value + 0.1)
-      currentParam.value = Math.round(currentParam.value * 10) / 10
+      params[key] = Math.min(1, params[key] + 0.1)
+      params[key] = Math.round(params[key] * 10) / 10
       
-      audio.onParamChange(currentParam)
+      audio.onParamChange()
     },
     
     decreaseCurrentParam () {
-      const params = this.drone.params.concat(this.audioPlayer.params)
-      const currentParam = params.find(param => param.active)
+      const params = this[this.activeParam.module].params
+      const key = this.activeParam.key
       
-      currentParam.value = Math.max(0, currentParam.value - 0.1)
-      currentParam.value = Math.round(currentParam.value * 10) / 10
+      params[key] = Math.max(0, params[key] - 0.1)
+      params[key] = Math.round(params[key] * 10) / 10
       
-      audio.onParamChange(currentParam)
+      audio.onParamChange()
     },
     
     showModal (name) {
